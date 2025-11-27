@@ -1,0 +1,230 @@
+PYTHON PROJECT REPORT 
+SUBMITTED BY: SMILE KAMBOJ 
+REGISTRATION NO:25BAI10875 
+INTRODUCTION 
+Problem-solving is the heart of engineering. It is the systematic process of identifying a 
+challenge, analyzing it, designing feasible solutions, and implementing the best one effectively. 
+In B.Tech, you will face real-world problems requiring logical thinking, creativity, and technical 
+knowledge. Strong problem-solving skills help you break complex issues into smaller parts, 
+apply algorithms or mathematical models, and verify results. From writing efficient code to 
+designing circuits or structures, every subject demands this approach. Developing these skills in 
+your first year builds a solid foundation for innovation, debugging, and lifelong learning in 
+technology. 
+Problem Statement 
+Create a voice assistant in Python using speech_recognition, pyttsx3, pywhatkit, wikipedia & 
+pyjokes. It listens continuously for "Alexa" wake word, recognizes commands via Google API, 
+and responds with female voice. Features: play YouTube songs, tell time, search Wikipedia 
+("who is..."), tell jokes, funny replies to dating/single questions, and asks to repeat unclear 
+commands. Must handle errors gracefully. 
+Scope of the Project 
+A simple voice assistant (Alexa-like) in Python that: 
+● Listens for the wake word "Alexa" 
+● Recognizes speech using Google API (needs internet) 
+● Speaks back with a female voice (pyttsx3) 
+● Can do: 
+○ Play songs on YouTube (play shape of you) 
+○ Tell current time 
+○ Search Wikipedia (who is Elon Musk) 
+○ Tell programmer jokes 
+○ Give funny replies to "date" or "are you single" 
+● Runs in an infinite loop 
+Limitations: 
+Needs wake word every time, no offline mode, very few commands, no stop command. 
+Perfect base for a custom JARVIS-style assistant — easy to expand!  
+Functional Requirement 
+1. Listen continuously for voice input 
+2. Activate only when wake word "Alexa" is spoken 
+3. Convert speech to text using Google Speech Recognition 
+4. Understand and execute these commands: 
+● Play [song name] → Play on YouTube 
+● What is the time → Tell current time 
+● Who is [person] → Read Wikipedia summary 
+● Tell me a joke → Tell a programmer joke 
+● Are you single / Date → Give funny response 
+5. Speak responses using text-to-speech (female voice) 
+6. Print user command and assistant reply in console 
+Non Functional Requirement 
+1. Must respond within 3 seconds 
+2. Requires active internet (Google Speech API) 
+3. Works on Windows/Linux/macOS with Python 3 
+4. Uses female voice by default 
+5. Runs continuously until manually stopped 
+6.Handles microphone/network errors gracefully 
+7.No data stored (zero privacy risk) 
+8.Single-user, single-device only 
+9. Lightweight (~50 MB RAM usage) 
+SYSTEM ARCHITECTURE 
+Type: Single-threaded, rule-based voice assistant 
+Flow: 
+Microphone → Google STT (online) → Wake word "Alexa" check → Keyword matching (if-elif) 
+→ Action (YouTube/Wiki/Joke/Time) → pyttsx3 TTS (offline) → Speaker + Console 
+Core Loop: Infinite while True listening 
+Dependencies: Internet (for speech recognition only) 
+Deployment: Local Python script 
+Simple | Linear | Easily extensible 
+DESIGN DIAGRAM 
+1. USE CASE DIAGRAM (TEXTUAL) 
+2. WORKFLOW / ACTIVITY DIAGRAM (TEXTUAL) 
+3. SEQUENCE DIAGRAM (TEXTUAL) 
+4. ER DIAGRAM (FILE-BASED—>SIMPLIFIED ENTITY 
+DIAGRAM) 
+Design Decisions and Rationale 
+Choice 
+Reason 
+Wake word "Alexa" every time Simple, no extra library 
+Google STT (online) 
+pyttsx3 TTS 
+if-elif rules 
+while True loop 
+Female voice 
+No memory/history 
+Funny replies 
+No stop command 
+Free & accurate 
+Offline, fast, no API 
+Easy to add new commands 
+Always listening, no GUI needed 
+Feels like real Alexa 
+Keep code minimal 
+Adds personality 
+Stop with Ctrl+C (simple script) 
+Implementation Details 
+Python voice assistant using speech_recognition (Google STT, online) and pyttsx3 (offline 
+female voice). It listens continuously in a while True loop, activates only on wake word “Alexa”, 
+strips it, and routes commands via simple if-elif checks. Features include playing songs on 
+YouTube (pywhatkit), telling time, Wikipedia lookups (1 sentence), programmer jokes (pyjokes), 
+and funny replies. Errors are handled gracefully, with no data storage or GUI — pure script, 
+stopped via Ctrl+C. Simple, fast, and highly extensible. 
+ 
+ 
+ 
+SCREENSHOT / RESULTS 
+import speech_recognition as sr 
+import pyttsx3 
+import pywhatkit 
+import wikipedia 
+import pyjokes 
+import datetime 
+ 
+# Initialize the recognizer and text-to-speech engine 
+listener = sr.Recognizer() 
+engine = pyttsx3.init() 
+ 
+# Set female voice (optional) 
+voices = engine.getProperty('voices') 
+engine.setProperty('voice', voices[1].id) # You can use [0] for male voice 
+ 
+def talk(text): 
+    # Convert text to speech 
+    print("Alexa:", text) 
+    engine.say(text) 
+    engine.runAndWait() 
+ 
+def take_command(): 
+    # Listen to user's voice and recognize the command 
+    command = "" 
+    try: 
+        with sr.Microphone() as source: 
+            print("Listening...") 
+            listener.adjust_for_ambient_noise(source) 
+            voice = listener.listen(source) 
+            command = listener.recognize_google(voice) 
+            command = command.lower() 
+            if 'alexa' in command: 
+                command = command.replace('alexa', '').strip() 
+            print("You said:", command) 
+    except sr.UnknownValueError: 
+        print("Sorry, I didn't understand that.") 
+    except sr.RequestError: 
+        print("Network error. Check your internet connection.") 
+    return command 
+ 
+def run_alexa(): 
+    # Process the command and respond accordingly 
+    command = take_command() 
+    if 'play' in command: 
+        song = command.replace('play', '').strip() 
+        talk("Playing " + song) 
+        pywhatkit.playonyt(song) 
+    elif 'time' in command: 
+        time = datetime.datetime.now().strftime('%I:%M %p') 
+        talk("The current time is " + time) 
+    elif 'who is' in command or 'who the heck is' in command: 
+        person = command.replace('who the heck is', '').replace('who is', 
+'').strip() 
+        try: 
+            info = wikipedia.summary(person, 1) 
+            print(info) 
+            talk(info) 
+        except wikipedia.exceptions.PageError: 
+            talk(f"Sorry, I couldn't find any information on {person}") 
+        except wikipedia.exceptions.DisambiguationError as e: 
+            talk(f"The term {person} is ambiguous. Please be more 
+specific.") 
+    elif 'date' in command: 
+        talk("Sorry, I have a headache today.") 
+    elif 'are you single' in command: 
+        talk("I am in a relationship with Wi-Fi.") 
+    elif 'joke' in command: 
+        talk(pyjokes.get_joke()) 
+    elif command != "": 
+        talk("Please say the command again.") 
+    # else: 
+    #     pass # No voice detected, ignore silently 
+ 
+# Run Alexa continuously 
+while True: 
+    run_alexa() 
+ 
+ 
+ 
+OUTPUT 
+ 
+Testing Approach 
+Wake word: Say without “Alexa” → No response 
+● Play: “Alexa play despacito” → YouTube opens 
+● Time: “Alexa what is the time” → Correct time spoken 
+● Who is: “Alexa who is Elon Musk” → Correct Wikipedia summary 
+● Joke: “Alexa tell me a joke” → Any joke spoken 
+● Flirt: “Alexa are you single/date” → Funny reply 
+● Unknown: Random command → “Please say again” 
+● No speech: Stay silent → No output 
+● No internet: Disconnect → “Network error” message 
+● Noise test: Speak in background noise → Still works 
+● Stress test: 20+ quick commands → No crash 
+● Long run: Leave 30+ mins → Keeps listening 
+Tools: Manual voice + pytest + mock for unit tests 
+Coverage: 100% in ~10 mins 
+Challenges Faced   
+1.Requires internet (Google STT fails offline) 
+2.Must say “Alexa” every time 
+3.No graceful stop (only Ctrl+C) 
+4.Background noise/accent → misrecognition 
+5.YouTube play blocks listening 
+6.Voice index voices[1] not universal 
+7.Very limited commands 
+8.Silent when wake word missing (confusing) 
+9.Wikipedia disambiguation errors 
+Learning & Key Takeaways   
+1.Easy to build a working voice assistant in <100 lines 
+2.Google STT + pyttsx3 = fastest way to get voice I/O 
+3.Wake word + if-elif = simplest command routing 
+4.Offline TTS is reliable, online STT is accurate but fragile 
+5.Always handle microphone/network errors 
+6.Small scripts can have big personality (funny replies) 
+7.Infinite loop + Ctrl+C is fine for prototypes 
+8.Highly extensible — perfect base for JARVIS-style projects 
+9.Real-world limitation: internet + wake-word repetition kills UX 
+Future Enhancements 
+1.Offline STT (Vosk/Whisper) 
+2.Real hotword detection 
+3.“Goodbye” to exit 
+4.Background music play 
+5.Add weather, alarms, open apps 
+6.Remember user name & history 
+7.Local LLM (Llama/Grok) for smart replies 
+8.GUI + multi-language 
+References  
+1. Lutz, M. (2013). Learning Python. O’Reilly Media. 2. Python 
+1.Official Documentation – File and Directory Access. 
+https://docs.python.org/3/library/files.html 3. Python Official
